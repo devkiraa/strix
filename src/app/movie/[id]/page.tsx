@@ -10,14 +10,18 @@ import {
   CalendarIcon,
   ClockIcon,
   ArrowLeftIcon,
+  FilmIcon,
 } from "@heroicons/react/24/solid";
 import {
   getMovieDetails,
   getImageUrl,
   getYear,
+  getTrailerKey,
   MediaDetails,
+  Video,
 } from "@/lib/tmdb";
 import PlayerModal from "@/components/PlayerModal";
+import TrailerModal from "@/components/TrailerModal";
 import MediaSlider from "@/components/MediaSlider";
 
 export default function MovieDetailPage() {
@@ -27,12 +31,19 @@ export default function MovieDetailPage() {
   const [movie, setMovie] = useState<MediaDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [playerOpen, setPlayerOpen] = useState(false);
+  const [trailerOpen, setTrailerOpen] = useState(false);
+  const [trailerKey, setTrailerKey] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchMovie = async () => {
       try {
         const data = await getMovieDetails(movieId);
         setMovie(data);
+        // Extract trailer key
+        if (data.videos?.results) {
+          const key = getTrailerKey(data.videos.results as Video[]);
+          setTrailerKey(key);
+        }
       } catch (error) {
         console.error("Error fetching movie:", error);
       } finally {
@@ -207,14 +218,26 @@ export default function MovieDetailPage() {
                 )}
             </div>
 
-            {/* Play Button */}
-            <button
-              onClick={() => setPlayerOpen(true)}
-              className="btn-primary text-base lg:text-lg px-6 lg:px-8 py-3 lg:py-4 w-full sm:w-auto"
-            >
-              <PlayIcon className="w-6 h-6" />
-              Watch Now
-            </button>
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 items-center sm:items-start">
+              <button
+                onClick={() => setPlayerOpen(true)}
+                className="inline-flex items-center justify-center gap-2 btn-primary text-base lg:text-lg px-6 lg:px-8 py-3 lg:py-4 w-full sm:w-auto"
+              >
+                <PlayIcon className="w-6 h-6" />
+                Watch Now
+              </button>
+
+              {trailerKey && (
+                <button
+                  onClick={() => setTrailerOpen(true)}
+                  className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white text-base lg:text-lg px-6 lg:px-8 py-3 lg:py-4 rounded-lg transition-colors w-full sm:w-auto"
+                >
+                  <FilmIcon className="w-6 h-6" />
+                  Watch Trailer
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -268,7 +291,19 @@ export default function MovieDetailPage() {
         mediaType="movie"
         mediaId={movieId}
         title={movie.title || "Movie"}
+        posterPath={movie.backdrop_path || movie.poster_path || ""}
+        duration={movie.runtime}
       />
+
+      {/* Trailer Modal */}
+      {trailerKey && (
+        <TrailerModal
+          isOpen={trailerOpen}
+          onClose={() => setTrailerOpen(false)}
+          trailerKey={trailerKey}
+          title={movie.title || "Movie"}
+        />
+      )}
     </>
   );
 }

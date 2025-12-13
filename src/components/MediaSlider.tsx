@@ -63,17 +63,17 @@ export default function MediaSlider({
         {/* Left Button - Hidden on mobile */}
         <button
           onClick={() => scroll("left")}
-          className="slider-btn hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 z-20 w-12 h-full bg-gradient-to-r from-black/80 to-transparent items-center justify-start pl-2 hover:from-black transition-all"
+          className="slider-btn hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-black/50 hover:bg-black/80 rounded-full items-center justify-center ml-2 transition-all"
         >
-          <ChevronLeftIcon className="w-8 h-8 text-white" />
+          <ChevronLeftIcon className="w-6 h-6 text-white" />
         </button>
 
         {/* Right Button - Hidden on mobile */}
         <button
           onClick={() => scroll("right")}
-          className="slider-btn hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 z-20 w-12 h-full bg-gradient-to-l from-black/80 to-transparent items-center justify-end pr-2 hover:from-black transition-all"
+          className="slider-btn hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-black/50 hover:bg-black/80 rounded-full items-center justify-center mr-2 transition-all"
         >
-          <ChevronRightIcon className="w-8 h-8 text-white" />
+          <ChevronRightIcon className="w-6 h-6 text-white" />
         </button>
 
         {/* Slider */}
@@ -83,17 +83,17 @@ export default function MediaSlider({
         >
           {isLoading
             ? Array.from({ length: 8 }).map((_, i) => (
-                <MediaCardSkeleton key={i} />
-              ))
+              <MediaCardSkeleton key={i} />
+            ))
             : items.map((item) => (
-                <MediaCard
-                  key={`${item.media_type || type}-${item.id}`}
-                  media={item}
-                  type={type}
-                  showType={showType}
-                  onPlay={onPlay}
-                />
-              ))}
+              <MediaCard
+                key={`${item.media_type || type}-${item.id}`}
+                media={item}
+                type={type}
+                showType={showType}
+                onPlay={onPlay}
+              />
+            ))}
         </div>
       </div>
     </section>

@@ -52,8 +52,8 @@ export default function Navbar() {
     <>
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-            ? "bg-[#141414]/90 backdrop-blur-md shadow-lg"
-            : "bg-transparent"
+          ? "bg-[#141414]/90 backdrop-blur-md shadow-lg"
+          : "bg-transparent"
           }`}
       >
         <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -73,8 +73,8 @@ export default function Navbar() {
                     key={link.href}
                     href={link.href}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${isActive
-                        ? "text-white bg-white/10"
-                        : "text-gray-300 hover:text-white hover:bg-white/5"
+                      ? "text-white bg-white/10"
+                      : "text-gray-300 hover:text-white hover:bg-white/5"
                       }`}
                   >
                     <Icon className="w-5 h-5" />
@@ -82,46 +82,6 @@ export default function Navbar() {
                   </Link>
                 );
               })}
-
-              {/* Genres Dropdown */}
-              <div className="relative">
-                <button
-                  onClick={() => setIsGenreOpen(!isGenreOpen)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-white/5 transition-colors"
-                >
-                  <span>Genres</span>
-                  <svg
-                    className={`w-4 h-4 transition-transform ${isGenreOpen ? "rotate-180" : ""}`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-
-                {isGenreOpen && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-40"
-                      onClick={() => setIsGenreOpen(false)}
-                    />
-                    <div className="absolute top-full left-0 mt-2 w-64 bg-[#232323] border border-white/10 rounded-lg shadow-xl z-50 py-2 max-h-[70vh] overflow-y-auto">
-                      {MOVIE_GENRES.map((genre) => (
-                        <Link
-                          key={genre.id}
-                          href={`/genre/${genre.id}?name=${encodeURIComponent(genre.name)}`}
-                          onClick={() => setIsGenreOpen(false)}
-                          className="flex items-center gap-3 px-4 py-2.5 text-gray-300 hover:text-white hover:bg-red-600/20 transition-colors"
-                        >
-                          <span className="text-lg">{genre.icon}</span>
-                          <span>{genre.name}</span>
-                        </Link>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
             </div>
 
             {/* Right Side Actions */}
@@ -178,8 +138,8 @@ export default function Navbar() {
                     href={link.href}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={`flex items-center gap-3 px-4 py-3 rounded-lg ${isActive
-                        ? "bg-red-600 text-white"
-                        : "text-gray-300 hover:bg-white/10"
+                      ? "bg-red-600 text-white"
+                      : "text-gray-300 hover:bg-white/10"
                       }`}
                   >
                     <Icon className="w-5 h-5" />
@@ -196,23 +156,6 @@ export default function Navbar() {
                 Request Content
               </Link>
 
-              {/* Mobile Genres */}
-              <div className="pt-2 border-t border-white/10">
-                <p className="px-4 py-2 text-sm text-gray-500 uppercase">Genres</p>
-                <div className="grid grid-cols-2 gap-1">
-                  {MOVIE_GENRES.slice(0, 8).map((genre) => (
-                    <Link
-                      key={genre.id}
-                      href={`/genre/${genre.id}?name=${encodeURIComponent(genre.name)}`}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:bg-white/10 rounded-lg"
-                    >
-                      <span>{genre.icon}</span>
-                      <span>{genre.name}</span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
             </div>
           </div>
         )}

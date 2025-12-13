@@ -76,17 +76,17 @@ async function fetchTMDB<T>(endpoint: string, params: Record<string, string> = {
   const url = new URL(`${BASE_URL}${endpoint}`);
   url.searchParams.append("api_key", API_KEY);
   url.searchParams.append("language", "en-US");
-  
+
   Object.entries(params).forEach(([key, value]) => {
     url.searchParams.append(key, value);
   });
 
   const response = await fetch(url.toString(), { next: { revalidate: 3600 } });
-  
+
   if (!response.ok) {
     throw new Error(`TMDB API Error: ${response.status}`);
   }
-  
+
   return response.json();
 }
 
@@ -224,4 +224,47 @@ export function getVidsrcUrl(type: "movie" | "tv", mediaId: number, season?: num
     return `${VIDSRC_BASE}/v2/embed/movie/${mediaId}?autoPlay=true`;
   }
   return `${VIDSRC_BASE}/v2/embed/tv/${mediaId}/${season || 1}/${episode || 1}?autoPlay=true`;
+}
+
+// Trailer helpers
+export interface Video {
+  id: string;
+  key: string;
+  type: string;
+  site: string;
+  name: string;
+  official?: boolean;
+}
+
+export function getTrailerKey(videos: Video[] | undefined): string | null {
+  if (!videos || videos.length === 0) return null;
+
+  // Priority: Official Trailer > Trailer > Teaser > any video
+  const officialTrailer = videos.find(
+    (v) => v.site === "YouTube" && v.type === "Trailer" && v.official
+  );
+  if (officialTrailer) return officialTrailer.key;
+
+  const trailer = videos.find(
+    (v) => v.site === "YouTube" && v.type === "Trailer"
+  );
+  if (trailer) return trailer.key;
+
+  const teaser = videos.find(
+    (v) => v.site === "YouTube" && v.type === "Teaser"
+  );
+  if (teaser) return teaser.key;
+
+  const anyYouTube = videos.find((v) => v.site === "YouTube");
+  if (anyYouTube) return anyYouTube.key;
+
+  return null;
+}
+
+export function getYouTubeEmbedUrl(key: string): string {
+  return `https://www.youtube.com/embed/${key}?autoplay=1&rel=0`;
+}
+
+export function getYouTubeThumbnail(key: string): string {
+  return `https://img.youtube.com/vi/${key}/maxresdefault.jpg`;
 }

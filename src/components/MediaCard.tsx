@@ -48,7 +48,7 @@ export default function MediaCard({ media, type = "movie", showType = false, onP
           src={getImageUrl(media.poster_path)}
           alt={title}
           fill
-          className={`object-cover transition-transform duration-500 ${isHovered ? "scale-110" : "scale-100"}`}
+          className="object-cover"
           sizes="(max-width: 640px) 150px, 180px"
         />
 
@@ -95,14 +95,21 @@ export default function MediaCard({ media, type = "movie", showType = false, onP
   );
 }
 
-// Loading Skeleton
+// Loading Skeleton with improved animation
 export function MediaCardSkeleton() {
   return (
-    <div className="w-[150px] sm:w-[180px] flex-shrink-0">
-      <div className="aspect-[2/3] rounded-lg skeleton" />
+    <div className="w-[150px] sm:w-[180px] flex-shrink-0 animate-pulse">
+      {/* Poster skeleton */}
+      <div className="aspect-[2/3] rounded-lg bg-gradient-to-br from-[#232323] to-[#1a1a1a] overflow-hidden relative">
+        {/* Shimmer effect */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent skeleton-shimmer" />
+        {/* Rating badge placeholder */}
+        <div className="absolute top-2 right-2 w-12 h-5 bg-white/10 rounded" />
+      </div>
+      {/* Text skeleton */}
       <div className="mt-3 space-y-2">
-        <div className="h-4 w-3/4 rounded skeleton" />
-        <div className="h-3 w-1/2 rounded skeleton" />
+        <div className="h-4 w-4/5 rounded bg-[#232323]" />
+        <div className="h-3 w-1/3 rounded bg-[#1a1a1a]" />
       </div>
     </div>
   );

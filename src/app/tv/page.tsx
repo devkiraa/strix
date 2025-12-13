@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, useRef, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import MediaCard from "@/components/MediaCard";
 import {
@@ -37,40 +37,87 @@ function TVShowsContent() {
 
   const [shows, setShows] = useState<Media[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [activeGenre, setActiveGenre] = useState<number | null>(
     genreId ? Number(genreId) : null
   );
 
-  useEffect(() => {
-    const fetchShows = async () => {
-      setLoading(true);
-      try {
-        let data: Media[] = [];
-        if (activeGenre) {
-          data = await discoverTVShows(activeGenre, page);
-        } else if (sort === "top_rated") {
-          data = await getTopRatedTVShows(page);
-        } else {
-          data = await getPopularTVShows(page);
-        }
+  // Infinite scroll ref
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
-        if (page === 1) {
-          setShows(data);
-        } else {
-          setShows((prev) => [...prev, ...data]);
+  // Fetch shows
+  const fetchShows = useCallback(async (pageNum: number, isInitial: boolean) => {
+    if (isInitial) {
+      setLoading(true);
+    } else {
+      setLoadingMore(true);
+    }
+
+    try {
+      let data: Media[] = [];
+      if (activeGenre) {
+        data = await discoverTVShows(activeGenre, pageNum);
+      } else if (sort === "top_rated") {
+        data = await getTopRatedTVShows(pageNum);
+      } else {
+        data = await getPopularTVShows(pageNum);
+      }
+
+      if (isInitial) {
+        setShows(data);
+      } else {
+        setShows((prev) => [...prev, ...data]);
+      }
+      setHasMore(data.length === 20);
+    } catch (error) {
+      console.error("Error fetching TV shows:", error);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  }, [activeGenre, sort]);
+
+  // Initial fetch
+  useEffect(() => {
+    setPage(1);
+    fetchShows(1, true);
+  }, [fetchShows]);
+
+  // Infinite scroll observer
+  useEffect(() => {
+    if (loading) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loadingMore) {
+          setPage((prev) => prev + 1);
         }
-        setHasMore(data.length === 20);
-      } catch (error) {
-        console.error("Error fetching TV shows:", error);
-      } finally {
-        setLoading(false);
+      },
+      { threshold: 0.1, rootMargin: "100px" }
+    );
+
+    observerRef.current = observer;
+
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current);
+    }
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
       }
     };
+  }, [loading, hasMore, loadingMore]);
 
-    fetchShows();
-  }, [sort, activeGenre, page]);
+  // Load more when page changes
+  useEffect(() => {
+    if (page > 1) {
+      fetchShows(page, false);
+    }
+  }, [page, fetchShows]);
 
   const handleGenreChange = (genreId: number | null) => {
     setActiveGenre(genreId);
@@ -83,12 +130,6 @@ function TVShowsContent() {
     router.push(`/tv/${show.id}`);
   };
 
-  const loadMore = () => {
-    if (!loading && hasMore) {
-      setPage((prev) => prev + 1);
-    }
-  };
-
   return (
     <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
       {/* Header */}
@@ -97,19 +138,18 @@ function TVShowsContent() {
           {activeGenre
             ? TV_GENRES.find((g) => g.id === activeGenre)?.name + " TV Shows"
             : sort === "top_rated"
-            ? "Top Rated TV Shows"
-            : "Popular TV Shows"}
+              ? "Top Rated TV Shows"
+              : "Popular TV Shows"}
         </h1>
 
         {/* Genre Filter */}
         <div className="flex flex-wrap gap-1.5 sm:gap-2">
           <button
             onClick={() => handleGenreChange(null)}
-            className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm transition-colors ${
-              !activeGenre
-                ? "bg-red-600 text-white"
-                : "bg-white/10 hover:bg-white/20 text-gray-300"
-            }`}
+            className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm transition-colors ${!activeGenre
+              ? "bg-red-600 text-white"
+              : "bg-white/10 hover:bg-white/20 text-gray-300"
+              }`}
           >
             All
           </button>
@@ -117,11 +157,10 @@ function TVShowsContent() {
             <button
               key={genre.id}
               onClick={() => handleGenreChange(genre.id)}
-              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm transition-colors ${
-                activeGenre === genre.id
-                  ? "bg-red-600 text-white"
-                  : "bg-white/10 hover:bg-white/20 text-gray-300"
-              }`}
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm transition-colors ${activeGenre === genre.id
+                ? "bg-red-600 text-white"
+                : "bg-white/10 hover:bg-white/20 text-gray-300"
+                }`}
             >
               {genre.name}
             </button>
@@ -130,9 +169,15 @@ function TVShowsContent() {
       </div>
 
       {/* TV Shows Grid */}
-      {shows.length > 0 ? (
+      {loading ? (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-4">
+          {Array.from({ length: 20 }).map((_, i) => (
+            <MediaCard key={i} loading />
+          ))}
+        </div>
+      ) : shows.length > 0 ? (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-4">
             {shows.map((show) => (
               <MediaCard
                 key={show.id}
@@ -142,25 +187,19 @@ function TVShowsContent() {
             ))}
           </div>
 
-          {/* Load More */}
-          {hasMore && (
-            <div className="flex justify-center mt-8">
-              <button
-                onClick={loadMore}
-                disabled={loading}
-                className="btn-primary px-8 py-3 disabled:opacity-50"
-              >
-                {loading ? "Loading..." : "Load More"}
-              </button>
-            </div>
-          )}
+          {/* Infinite scroll trigger */}
+          <div ref={loadMoreRef} className="flex justify-center py-8">
+            {loadingMore && (
+              <div className="flex items-center gap-3">
+                <div className="w-6 h-6 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+                <span className="text-gray-400">Loading more...</span>
+              </div>
+            )}
+            {!hasMore && shows.length > 0 && (
+              <p className="text-gray-500">You&apos;ve reached the end</p>
+            )}
+          </div>
         </>
-      ) : loading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-          {Array.from({ length: 20 }).map((_, i) => (
-            <MediaCard key={i} loading />
-          ))}
-        </div>
       ) : (
         <div className="text-center py-16">
           <p className="text-gray-400">No TV shows found</p>
