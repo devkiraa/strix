@@ -63,7 +63,7 @@ export default function Navbar() {
             <Link href="/" className="flex items-center gap-2 shrink-0">
               <PlayCircleIcon className="w-8 h-8 lg:w-10 lg:h-10 text-red-600" />
               <span className="text-xl lg:text-2xl font-bold">
-                Cine<span className="text-gradient">Stream</span>
+                Str<span className="text-gradient">ix</span>
               </span>
             </Link>
 

@@ -7,12 +7,12 @@ import Footer from "@/components/Footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "CineStream - Watch Movies & TV Shows Online Free",
+  title: "Strix - Watch Movies & TV Shows Online Free",
   description:
     "Stream the latest movies and TV shows in HD quality. No signup required. Watch unlimited content for free.",
   keywords: "movies, tv shows, streaming, free movies, watch online, HD movies",
   openGraph: {
-    title: "CineStream - Free Movies & TV Shows Streaming",
+    title: "Strix - Free Movies & TV Shows Streaming",
     description:
       "Stream the latest movies and TV shows in HD quality. No signup required.",
     type: "website",

@@ -25,7 +25,7 @@ export default function Footer() {
           <div className="flex items-center gap-2">
             <PlayCircleIcon className="w-10 h-10 text-red-600" />
             <span className="text-2xl font-bold text-white">
-              Cine<span className="text-gradient">Stream</span>
+              Str<span className="text-gradient">ix</span>
             </span>
           </div>
 
@@ -59,7 +59,7 @@ export default function Footer() {
 
         <div className="mt-8 pt-8 border-t border-white/10 text-center">
           <p className="text-gray-500 text-sm">
-            © {new Date().getFullYear()} CineStream. All rights reserved. Made with ❤️
+            © {new Date().getFullYear()} Strix. All rights reserved. Made with ❤️
           </p>
           <p className="text-gray-600 text-xs mt-2">
             This site does not store any files on its server. All contents are provided by non-affiliated third parties.

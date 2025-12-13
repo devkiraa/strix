@@ -33,7 +33,7 @@ function RequestContent() {
         },
         body: JSON.stringify({
           access_key: "108ed3e8-e32f-4b50-be8e-2c59ee895c9a",
-          from_name: "CineStream Request",
+          from_name: "Strix Request",
           subject: `Content Request: ${formData.title}`,
           ...formData,
         }),
