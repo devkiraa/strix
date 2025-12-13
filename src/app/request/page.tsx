@@ -55,10 +55,10 @@ function RequestContent() {
 
   if (isSubmitted) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-16 pt-24 text-center">
-        <CheckCircleIcon className="w-20 h-20 text-green-500 mx-auto mb-6" />
-        <h1 className="text-3xl font-bold mb-4">Request Submitted!</h1>
-        <p className="text-gray-400 mb-8">
+      <div className="max-w-2xl mx-auto px-4 py-10 sm:py-16 pt-24 text-center">
+        <CheckCircleIcon className="w-14 h-14 sm:w-20 sm:h-20 text-green-500 mx-auto mb-4 sm:mb-6" />
+        <h1 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">Request Submitted!</h1>
+        <p className="text-gray-400 mb-6 sm:mb-8 text-sm sm:text-base">
           Thank you for your request. We&apos;ll review it and try to add the
           content as soon as possible.
         </p>
@@ -83,10 +83,10 @@ function RequestContent() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8 pt-24">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold mb-2">Request Content</h1>
-        <p className="text-gray-400">
+    <div className="max-w-2xl mx-auto px-4 py-6 sm:py-8 pt-24">
+      <div className="text-center mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2">Request Content</h1>
+        <p className="text-gray-400 text-sm sm:text-base">
           Can&apos;t find what you&apos;re looking for? Let us know and we&apos;ll
           try to add it.
         </p>
@@ -94,7 +94,7 @@ function RequestContent() {
 
       <form
         onSubmit={handleSubmit}
-        className="space-y-6 bg-[#1a1a1a] p-6 rounded-xl"
+        className="space-y-4 sm:space-y-6 bg-[#1a1a1a] p-4 sm:p-6 rounded-xl"
       >
         {/* Name */}
         <div>

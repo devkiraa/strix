@@ -59,13 +59,13 @@ export default function HomePage() {
 
   const handlePlay = (media: Media) => {
     const mediaType = media.media_type || (media.title ? "movie" : "tv");
-    
+
     // For TV shows, navigate to detail page for episode selection
     if (mediaType === "tv") {
       router.push(`/tv/${media.id}`);
       return;
     }
-    
+
     // For movies, play directly
     setCurrentMedia({
       id: media.id,
@@ -94,34 +94,34 @@ export default function HomePage() {
       {/* Content Sliders */}
       <div className="space-y-8 pb-16">
         <MediaSlider
-          title="🔥 Trending This Week"
+          title="Trending This Week"
           items={trendingAll}
           onPlay={handlePlay}
         />
 
         <MediaSlider
-          title="🎬 Popular Movies"
+          title="Popular Movies"
           items={popularMovies}
           seeAllLink="/movies"
           onPlay={handlePlay}
         />
 
         <MediaSlider
-          title="⭐ Top Rated Movies"
+          title="Top Rated Movies"
           items={topRatedMovies}
           seeAllLink="/movies?sort=top_rated"
           onPlay={handlePlay}
         />
 
         <MediaSlider
-          title="📺 Popular TV Shows"
+          title="Popular TV Shows"
           items={popularTV}
           seeAllLink="/tv"
           onPlay={handlePlay}
         />
 
         <MediaSlider
-          title="🏆 Top Rated TV Shows"
+          title="Top Rated TV Shows"
           items={topRatedTV}
           seeAllLink="/tv?sort=top_rated"
           onPlay={handlePlay}

@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { 
-  MagnifyingGlassIcon, 
-  FilmIcon, 
+import {
+  MagnifyingGlassIcon,
+  FilmIcon,
   TvIcon,
   HomeIcon,
   Bars3Icon,
@@ -51,20 +51,16 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
             ? "bg-[#141414]/90 backdrop-blur-md shadow-lg"
             : "bg-transparent"
-        }`}
+          }`}
       >
         <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 shrink-0">
               <PlayCircleIcon className="w-8 h-8 lg:w-10 lg:h-10 text-red-600" />
-              <span className="text-xl lg:text-2xl font-bold">
-                Str<span className="text-gradient">ix</span>
-              </span>
             </Link>
 
             {/* Desktop Navigation */}
@@ -76,11 +72,10 @@ export default function Navbar() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                      isActive
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${isActive
                         ? "text-white bg-white/10"
                         : "text-gray-300 hover:text-white hover:bg-white/5"
-                    }`}
+                      }`}
                   >
                     <Icon className="w-5 h-5" />
                     {link.label}
@@ -182,11 +177,10 @@ export default function Navbar() {
                     key={link.href}
                     href={link.href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg ${
-                      isActive
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg ${isActive
                         ? "bg-red-600 text-white"
                         : "text-gray-300 hover:bg-white/10"
-                    }`}
+                      }`}
                   >
                     <Icon className="w-5 h-5" />
                     {link.label}
@@ -201,7 +195,7 @@ export default function Navbar() {
                 <PlusCircleIcon className="w-5 h-5" />
                 Request Content
               </Link>
-              
+
               {/* Mobile Genres */}
               <div className="pt-2 border-t border-white/10">
                 <p className="px-4 py-2 text-sm text-gray-500 uppercase">Genres</p>
@@ -226,34 +220,34 @@ export default function Navbar() {
 
       {/* Simple Search Modal */}
       {isSearchOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-20">
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-12 sm:pt-20">
           <div
             className="absolute inset-0 bg-black/80 backdrop-blur-sm"
             onClick={() => setIsSearchOpen(false)}
           />
-          <div className="relative w-full max-w-2xl mx-4 animate-fade-in">
+          <div className="relative w-full max-w-2xl mx-3 sm:mx-4 animate-fade-in">
             <form onSubmit={handleSearch}>
               <div className="relative">
-                <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400" />
+                <MagnifyingGlassIcon className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-5 h-5 sm:w-6 sm:h-6 text-gray-400" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search for movies, TV shows..."
-                  className="w-full px-14 py-4 bg-[#232323] border border-white/10 rounded-xl text-lg focus:outline-none focus:border-red-600 transition-colors"
+                  placeholder="Search movies, TV shows..."
+                  className="w-full px-10 sm:px-14 py-3 sm:py-4 bg-[#232323] border border-white/10 rounded-xl text-base sm:text-lg focus:outline-none focus:border-red-600 transition-colors"
                   autoFocus
                 />
                 <button
                   type="button"
                   onClick={() => setIsSearchOpen(false)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-white/10 rounded-full transition-colors"
+                  className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-white/10 rounded-full transition-colors"
                 >
-                  <XMarkIcon className="w-6 h-6" />
+                  <XMarkIcon className="w-5 h-5 sm:w-6 sm:h-6" />
                 </button>
               </div>
             </form>
-            <p className="text-center text-gray-500 mt-4 text-sm">
-              Press Enter to search or ESC to close
+            <p className="text-center text-gray-500 mt-3 sm:mt-4 text-xs sm:text-sm">
+              Press Enter to search or tap outside to close
             </p>
           </div>
         </div>

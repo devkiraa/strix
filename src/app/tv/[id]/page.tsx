@@ -148,10 +148,10 @@ export default function TVDetailPage() {
           Back
         </Link>
 
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
           {/* Poster */}
           <div className="flex-shrink-0">
-            <div className="relative w-[300px] h-[450px] rounded-lg overflow-hidden shadow-2xl mx-auto lg:mx-0">
+            <div className="relative w-[200px] h-[300px] sm:w-[250px] sm:h-[375px] lg:w-[300px] lg:h-[450px] rounded-lg overflow-hidden shadow-2xl mx-auto lg:mx-0">
               {show.poster_path ? (
                 <Image
                   src={getImageUrl(show.poster_path, "w500")}
@@ -168,17 +168,17 @@ export default function TVDetailPage() {
           </div>
 
           {/* Info */}
-          <div className="flex-grow">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">{show.name}</h1>
+          <div className="flex-grow text-center lg:text-left">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 lg:mb-4">{show.name}</h1>
 
             {show.tagline && (
-              <p className="text-xl text-gray-400 italic mb-6">
+              <p className="text-base sm:text-lg lg:text-xl text-gray-400 italic mb-4 lg:mb-6">
                 &quot;{show.tagline}&quot;
               </p>
             )}
 
             {/* Meta */}
-            <div className="flex flex-wrap items-center gap-4 mb-6">
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 sm:gap-4 mb-4 lg:mb-6">
               <div className="flex items-center gap-1 text-yellow-500">
                 <StarIcon className="w-5 h-5" />
                 <span className="font-semibold">
@@ -204,7 +204,7 @@ export default function TVDetailPage() {
 
             {/* Genres */}
             {show.genres && show.genres.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-6">
+              <div className="flex flex-wrap justify-center lg:justify-start gap-2 mb-4 lg:mb-6">
                 {show.genres.map((genre) => (
                   <Link
                     key={genre.id}
@@ -218,9 +218,9 @@ export default function TVDetailPage() {
             )}
 
             {/* Overview */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold mb-2">Overview</h3>
-              <p className="text-gray-300 leading-relaxed max-w-3xl">
+            <div className="mb-6 lg:mb-8">
+              <h3 className="text-lg lg:text-xl font-semibold mb-2">Overview</h3>
+              <p className="text-gray-300 text-sm sm:text-base leading-relaxed max-w-3xl">
                 {show.overview || "No overview available."}
               </p>
             </div>
@@ -228,7 +228,7 @@ export default function TVDetailPage() {
             {/* Play Button */}
             <button
               onClick={() => setPlayerOpen(true)}
-              className="btn-primary text-lg px-8 py-4"
+              className="btn-primary text-base lg:text-lg px-6 lg:px-8 py-3 lg:py-4 w-full sm:w-auto"
             >
               <PlayIcon className="w-6 h-6" />
               Watch S{selectedSeason} E{selectedEpisode}
@@ -238,9 +238,9 @@ export default function TVDetailPage() {
 
         {/* Seasons & Episodes */}
         {show.seasons && show.seasons.length > 0 && (
-          <div className="mt-16">
-            <div className="flex items-center gap-4 mb-6">
-              <h2 className="text-2xl font-bold">Episodes</h2>
+          <div className="mt-10 lg:mt-16">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-4 lg:mb-6">
+              <h2 className="text-xl lg:text-2xl font-bold">Episodes</h2>
 
               {/* Season Dropdown */}
               <div className="relative">

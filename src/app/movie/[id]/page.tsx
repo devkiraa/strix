@@ -98,10 +98,10 @@ export default function MovieDetailPage() {
           Back
         </Link>
 
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
           {/* Poster */}
           <div className="flex-shrink-0">
-            <div className="relative w-[300px] h-[450px] rounded-lg overflow-hidden shadow-2xl mx-auto lg:mx-0">
+            <div className="relative w-[200px] h-[300px] sm:w-[250px] sm:h-[375px] lg:w-[300px] lg:h-[450px] rounded-lg overflow-hidden shadow-2xl mx-auto lg:mx-0">
               {movie.poster_path ? (
                 <Image
                   src={getImageUrl(movie.poster_path, "w500")}
@@ -118,19 +118,19 @@ export default function MovieDetailPage() {
           </div>
 
           {/* Info */}
-          <div className="flex-grow">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+          <div className="flex-grow text-center lg:text-left">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 lg:mb-4">
               {movie.title}
             </h1>
 
             {movie.tagline && (
-              <p className="text-xl text-gray-400 italic mb-6">
+              <p className="text-base sm:text-lg lg:text-xl text-gray-400 italic mb-4 lg:mb-6">
                 &quot;{movie.tagline}&quot;
               </p>
             )}
 
             {/* Meta */}
-            <div className="flex flex-wrap items-center gap-4 mb-6">
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 sm:gap-4 mb-4 lg:mb-6">
               <div className="flex items-center gap-1 text-yellow-500">
                 <StarIcon className="w-5 h-5" />
                 <span className="font-semibold">
@@ -149,7 +149,7 @@ export default function MovieDetailPage() {
 
             {/* Genres */}
             {movie.genres && movie.genres.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-6">
+              <div className="flex flex-wrap justify-center lg:justify-start gap-2 mb-4 lg:mb-6">
                 {movie.genres.map((genre) => (
                   <Link
                     key={genre.id}
@@ -163,15 +163,15 @@ export default function MovieDetailPage() {
             )}
 
             {/* Overview */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold mb-2">Overview</h3>
-              <p className="text-gray-300 leading-relaxed max-w-3xl">
+            <div className="mb-6 lg:mb-8">
+              <h3 className="text-lg lg:text-xl font-semibold mb-2">Overview</h3>
+              <p className="text-gray-300 text-sm sm:text-base leading-relaxed max-w-3xl">
                 {movie.overview || "No overview available."}
               </p>
             </div>
 
             {/* Additional Info */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-8 pb-8 border-b border-white/10">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 lg:gap-6 mb-6 lg:mb-8 pb-6 lg:pb-8 border-b border-white/10">
               {movie.status && (
                 <div>
                   <h4 className="text-gray-500 text-sm">Status</h4>
@@ -210,7 +210,7 @@ export default function MovieDetailPage() {
             {/* Play Button */}
             <button
               onClick={() => setPlayerOpen(true)}
-              className="btn-primary text-lg px-8 py-4"
+              className="btn-primary text-base lg:text-lg px-6 lg:px-8 py-3 lg:py-4 w-full sm:w-auto"
             >
               <PlayIcon className="w-6 h-6" />
               Watch Now
@@ -220,8 +220,8 @@ export default function MovieDetailPage() {
 
         {/* Cast Section */}
         {movie.credits?.cast && movie.credits.cast.length > 0 && (
-          <div className="mt-12">
-            <h3 className="text-xl font-bold mb-4">Cast</h3>
+          <div className="mt-8 lg:mt-12">
+            <h3 className="text-lg lg:text-xl font-bold mb-3 lg:mb-4">Cast</h3>
             <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
               {movie.credits.cast.slice(0, 10).map((actor) => (
                 <div

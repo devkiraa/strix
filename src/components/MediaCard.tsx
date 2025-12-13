@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import { Media, getImageUrl, getTitle, getYear } from "@/lib/tmdb";
 import { StarIcon, PlayIcon } from "@heroicons/react/24/solid";
 
@@ -14,6 +15,8 @@ export interface MediaCardProps {
 }
 
 export default function MediaCard({ media, type = "movie", showType = false, onPlay, loading }: MediaCardProps) {
+  const [isHovered, setIsHovered] = useState(false);
+
   if (loading || !media) {
     return <MediaCardSkeleton />;
   }
@@ -27,6 +30,7 @@ export default function MediaCard({ media, type = "movie", showType = false, onP
   const handlePlayClick = (e: React.MouseEvent) => {
     if (onPlay) {
       e.preventDefault();
+      e.stopPropagation();
       onPlay(media);
     }
   };
@@ -34,7 +38,9 @@ export default function MediaCard({ media, type = "movie", showType = false, onP
   return (
     <Link
       href={href}
-      className="media-card relative group bg-[#181818] rounded-lg overflow-hidden flex-shrink-0 w-[150px] sm:w-[180px]"
+      className="media-card relative bg-[#181818] rounded-lg overflow-hidden flex-shrink-0 w-[150px] sm:w-[180px]"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {/* Poster */}
       <div className="relative aspect-[2/3] overflow-hidden">
@@ -42,17 +48,23 @@ export default function MediaCard({ media, type = "movie", showType = false, onP
           src={getImageUrl(media.poster_path)}
           alt={title}
           fill
-          className="object-cover transition-transform duration-500 group-hover:scale-110"
+          className={`object-cover transition-transform duration-500 ${isHovered ? "scale-110" : "scale-100"}`}
           sizes="(max-width: 640px) 150px, 180px"
         />
-        
+
         {/* Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <div
+          className={`absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent transition-opacity duration-300 ${isHovered ? "opacity-100" : "opacity-0"
+            }`}
+        >
           <button
             onClick={handlePlayClick}
             className="absolute inset-0 flex items-center justify-center"
           >
-            <div className="w-14 h-14 bg-white/90 rounded-full flex items-center justify-center transform scale-0 group-hover:scale-100 transition-transform duration-300">
+            <div
+              className={`w-14 h-14 bg-white/90 rounded-full flex items-center justify-center transition-transform duration-300 ${isHovered ? "scale-100" : "scale-0"
+                }`}
+            >
               <PlayIcon className="w-7 h-7 text-black ml-1" />
             </div>
           </button>

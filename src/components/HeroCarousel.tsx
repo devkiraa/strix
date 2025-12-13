@@ -64,9 +64,8 @@ export default function HeroCarousel({ items, onPlay }: HeroCarouselProps) {
       {items.map((item, index) => (
         <div
           key={item.id}
-          className={`absolute inset-0 transition-opacity duration-1000 ${
-            index === currentIndex ? "opacity-100" : "opacity-0"
-          }`}
+          className={`absolute inset-0 transition-opacity duration-1000 ${index === currentIndex ? "opacity-100" : "opacity-0"
+            }`}
         >
           <Image
             src={getImageUrl(item.backdrop_path, ORIGINAL_SIZE)}
@@ -87,7 +86,6 @@ export default function HeroCarousel({ items, onPlay }: HeroCarouselProps) {
           <div className="max-w-2xl animate-fadeIn" key={currentIndex}>
             {/* Badge */}
             <span className="inline-flex items-center gap-2 bg-red-600/90 text-white px-3 py-1.5 rounded-md text-sm font-semibold mb-4">
-              <span className="animate-pulse-slow">🔥</span>
               Trending #{currentIndex + 1}
             </span>
 
@@ -114,53 +112,57 @@ export default function HeroCarousel({ items, onPlay }: HeroCarouselProps) {
             </p>
 
             {/* Buttons */}
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-row gap-3 items-center">
               <button
                 onClick={handlePlayClick}
-                className="flex items-center gap-2 bg-white text-black px-6 py-3 rounded-md font-semibold hover:bg-white/90 transition-colors"
+                className="inline-flex flex-row flex-nowrap items-center justify-center gap-2 bg-white text-black px-6 py-3 rounded-md font-semibold hover:bg-white/90 transition-colors whitespace-nowrap"
               >
-                <PlayIcon className="w-6 h-6" />
-                Watch Now
+                <PlayIcon className="w-5 h-5 flex-shrink-0" />
+                <span>Watch Now</span>
               </button>
               <Link
                 href={`/${mediaType}/${current.id}`}
-                className="flex items-center gap-2 bg-white/20 text-white px-6 py-3 rounded-md font-semibold hover:bg-white/30 transition-colors backdrop-blur-sm"
+                className="inline-flex flex-row flex-nowrap items-center justify-center gap-2 bg-white/20 text-white px-6 py-3 rounded-md font-semibold hover:bg-white/30 transition-colors backdrop-blur-sm whitespace-nowrap"
               >
-                <InformationCircleIcon className="w-6 h-6" />
-                More Info
+                <InformationCircleIcon className="w-5 h-5 flex-shrink-0" />
+                <span>More Info</span>
               </Link>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Navigation Arrows */}
-      <button
-        onClick={goToPrev}
-        className="absolute left-4 bottom-20 p-2 bg-black/40 hover:bg-black/60 rounded-full transition-colors opacity-0 hover:opacity-100 focus:opacity-100 md:opacity-30 md:hover:opacity-100 z-10"
-      >
-        <ChevronLeftIcon className="w-6 h-6 text-white" />
-      </button>
-      <button
-        onClick={goToNext}
-        className="absolute right-4 bottom-20 p-2 bg-black/40 hover:bg-black/60 rounded-full transition-colors opacity-0 hover:opacity-100 focus:opacity-100 md:opacity-30 md:hover:opacity-100 z-10"
-      >
-        <ChevronRightIcon className="w-6 h-6 text-white" />
-      </button>
+      {/* Navigation & Indicators */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 z-10">
+        {/* Left Arrow */}
+        <button
+          onClick={goToPrev}
+          className="p-2 bg-black/40 hover:bg-black/60 rounded-full transition-colors"
+        >
+          <ChevronLeftIcon className="w-5 h-5 text-white" />
+        </button>
 
-      {/* Indicators */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
-        {items.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => goToSlide(index)}
-            className={`w-3 h-3 rounded-full transition-all ${
-              index === currentIndex
+        {/* Indicators */}
+        <div className="flex gap-2">
+          {items.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => goToSlide(index)}
+              className={`w-3 h-3 rounded-full transition-all ${index === currentIndex
                 ? "bg-red-600 w-8"
                 : "bg-white/50 hover:bg-white/70"
-            }`}
-          />
-        ))}
+                }`}
+            />
+          ))}
+        </div>
+
+        {/* Right Arrow */}
+        <button
+          onClick={goToNext}
+          className="p-2 bg-black/40 hover:bg-black/60 rounded-full transition-colors"
+        >
+          <ChevronRightIcon className="w-5 h-5 text-white" />
+        </button>
       </div>
     </section>
   );

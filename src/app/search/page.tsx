@@ -72,20 +72,20 @@ function SearchContent() {
   return (
     <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
       {/* Search Form */}
-      <div className="max-w-3xl mx-auto mb-12">
-        <h1 className="text-3xl font-bold text-center mb-6">Search</h1>
+      <div className="max-w-3xl mx-auto mb-8 sm:mb-12">
+        <h1 className="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-6">Search</h1>
         <form onSubmit={handleSubmit} className="relative">
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search for movies, TV shows..."
-            className="w-full px-6 py-4 pl-14 bg-[#232323] border border-white/10 rounded-full text-lg focus:outline-none focus:border-red-600 transition-colors"
+            className="w-full px-4 sm:px-6 py-3 sm:py-4 pl-10 sm:pl-14 bg-[#232323] border border-white/10 rounded-full text-base sm:text-lg focus:outline-none focus:border-red-600 transition-colors"
           />
-          <MagnifyingGlassIcon className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400" />
+          <MagnifyingGlassIcon className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 w-5 h-5 sm:w-6 sm:h-6 text-gray-400" />
           <button
             type="submit"
-            className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 bg-red-600 hover:bg-red-700 rounded-full transition-colors"
+            className="absolute right-1.5 sm:right-2 top-1/2 -translate-y-1/2 px-4 sm:px-6 py-1.5 sm:py-2 bg-red-600 hover:bg-red-700 rounded-full transition-colors text-sm sm:text-base"
           >
             Search
           </button>
@@ -111,15 +111,15 @@ function SearchContent() {
           </div>
         </>
       ) : searched ? (
-        <div className="text-center py-16">
-          <p className="text-gray-400 text-xl mb-4">No results found</p>
-          <p className="text-gray-500">
+        <div className="text-center py-10 sm:py-16">
+          <p className="text-gray-400 text-lg sm:text-xl mb-4">No results found</p>
+          <p className="text-gray-500 text-sm sm:text-base">
             Try different keywords or check the spelling
           </p>
         </div>
       ) : (
-        <div className="text-center py-16">
-          <p className="text-gray-400">
+        <div className="text-center py-10 sm:py-16">
+          <p className="text-gray-400 text-sm sm:text-base">
             Enter a search term to find movies and TV shows
           </p>
         </div>

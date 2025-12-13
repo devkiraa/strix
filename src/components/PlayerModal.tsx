@@ -71,11 +71,11 @@ export default function PlayerModal({
       />
 
       {/* Modal Container */}
-      <div className="relative w-full max-w-[1280px] mx-4 animate-fade-in">
+      <div className="relative w-full max-w-[1280px] mx-2 sm:mx-4 animate-fade-in">
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-xl font-semibold text-white">{title}</h2>
+        <div className="flex items-center justify-between mb-2 sm:mb-4">
+          <div className="flex-1 min-w-0 mr-2">
+            <h2 className="text-base sm:text-xl font-semibold text-white truncate">{title}</h2>
             {mediaType === "tv" && (
               <p className="text-gray-400 text-sm">
                 Season {season}, Episode {episode}
@@ -94,9 +94,9 @@ export default function PlayerModal({
         <div className="relative aspect-video bg-black rounded-lg overflow-hidden shadow-2xl">
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center bg-[#141414]">
-              <div className="flex flex-col items-center gap-4">
-                <div className="w-16 h-16 border-4 border-red-600 border-t-transparent rounded-full animate-spin" />
-                <p className="text-gray-400">Loading player...</p>
+              <div className="flex flex-col items-center gap-2 sm:gap-4">
+                <div className="w-10 h-10 sm:w-16 sm:h-16 border-4 border-red-600 border-t-transparent rounded-full animate-spin" />
+                <p className="text-gray-400 text-sm sm:text-base">Loading player...</p>
               </div>
             </div>
           )}
@@ -110,9 +110,9 @@ export default function PlayerModal({
         </div>
 
         {/* Info */}
-        <div className="mt-4 flex items-center gap-4 text-sm text-gray-400">
-          <p>
-            💡 Tip: If the video doesn&apos;t load, try refreshing or changing
+        <div className="mt-2 sm:mt-4 flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-400">
+          <p className="text-center sm:text-left">
+            Tip: If the video doesn&apos;t load, try refreshing or changing
             the server.
           </p>
         </div>

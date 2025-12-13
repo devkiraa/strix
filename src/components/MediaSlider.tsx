@@ -60,18 +60,18 @@ export default function MediaSlider({
 
       {/* Slider Container */}
       <div className="relative group slider-container">
-        {/* Left Button */}
+        {/* Left Button - Hidden on mobile */}
         <button
           onClick={() => scroll("left")}
-          className="slider-btn absolute left-0 top-1/2 -translate-y-1/2 z-20 w-12 h-full bg-gradient-to-r from-black/80 to-transparent flex items-center justify-start pl-2 hover:from-black transition-all"
+          className="slider-btn hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 z-20 w-12 h-full bg-gradient-to-r from-black/80 to-transparent items-center justify-start pl-2 hover:from-black transition-all"
         >
           <ChevronLeftIcon className="w-8 h-8 text-white" />
         </button>
 
-        {/* Right Button */}
+        {/* Right Button - Hidden on mobile */}
         <button
           onClick={() => scroll("right")}
-          className="slider-btn absolute right-0 top-1/2 -translate-y-1/2 z-20 w-12 h-full bg-gradient-to-l from-black/80 to-transparent flex items-center justify-end pr-2 hover:from-black transition-all"
+          className="slider-btn hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 z-20 w-12 h-full bg-gradient-to-l from-black/80 to-transparent items-center justify-end pr-2 hover:from-black transition-all"
         >
           <ChevronRightIcon className="w-8 h-8 text-white" />
         </button>

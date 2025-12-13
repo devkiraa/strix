@@ -92,8 +92,8 @@ function TVShowsContent() {
   return (
     <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-4">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">
           {activeGenre
             ? TV_GENRES.find((g) => g.id === activeGenre)?.name + " TV Shows"
             : sort === "top_rated"
@@ -102,10 +102,10 @@ function TVShowsContent() {
         </h1>
 
         {/* Genre Filter */}
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5 sm:gap-2">
           <button
             onClick={() => handleGenreChange(null)}
-            className={`px-4 py-2 rounded-full text-sm transition-colors ${
+            className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm transition-colors ${
               !activeGenre
                 ? "bg-red-600 text-white"
                 : "bg-white/10 hover:bg-white/20 text-gray-300"
@@ -117,7 +117,7 @@ function TVShowsContent() {
             <button
               key={genre.id}
               onClick={() => handleGenreChange(genre.id)}
-              className={`px-4 py-2 rounded-full text-sm transition-colors ${
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm transition-colors ${
                 activeGenre === genre.id
                   ? "bg-red-600 text-white"
                   : "bg-white/10 hover:bg-white/20 text-gray-300"
