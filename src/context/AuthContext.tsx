@@ -9,7 +9,6 @@ import {
     getUserWatchProgress,
     saveUserWatchProgress,
     removeUserWatchProgress,
-    getContinueWatchingForUser,
 } from "@/lib/api";
 
 interface AuthContextType {
@@ -55,13 +54,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else {
             setWatchProgress([]);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user]);
 
     const refreshWatchProgress = async () => {
         if (!user) return;
         try {
-            const progress = await getContinueWatchingForUser(user.email);
-            setWatchProgress(progress);
+            // Get ALL watch progress items, let the UI decide how to filter
+            const progress = await getUserWatchProgress(user.email);
+            // Sort by last watched, newest first
+            const sorted = progress.sort((a: WatchProgressItem, b: WatchProgressItem) => b.lastWatched - a.lastWatched);
+            setWatchProgress(sorted);
+            console.log("Watch progress loaded:", sorted.length, "items");
         } catch (error) {
             console.error("Error fetching watch progress:", error);
         }

@@ -13,6 +13,7 @@ import {
   PlusCircleIcon,
   UserIcon,
   ArrowRightOnRectangleIcon,
+  ClockIcon,
 } from "@heroicons/react/24/outline";
 import { PlayCircleIcon } from "@heroicons/react/24/solid";
 import { useAuth } from "@/context/AuthContext";
@@ -55,6 +56,7 @@ export default function Navbar() {
     { href: "/", label: "Home", icon: HomeIcon },
     { href: "/movies", label: "Movies", icon: FilmIcon },
     { href: "/tv", label: "TV Shows", icon: TvIcon },
+    { href: "/watching", label: "Watching", icon: ClockIcon },
   ];
 
   return (

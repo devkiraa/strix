@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { XMarkIcon, QuestionMarkCircleIcon } from "@heroicons/react/24/solid";
+import { XMarkIcon, QuestionMarkCircleIcon, CheckCircleIcon } from "@heroicons/react/24/solid";
 import { getVidsrcUrl } from "@/lib/tmdb";
 import { saveWatchProgress, getMediaProgress } from "@/lib/watchProgress";
 import { useAuth } from "@/context/AuthContext";
@@ -34,71 +34,136 @@ export default function PlayerModal({
   const { isAuthenticated, saveProgress } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [showShortcuts, setShowShortcuts] = useState(false);
-  const startTimeRef = useRef<number>(0);
-  const initialProgressRef = useRef<number>(0);
+  const [isMarkedWatched, setIsMarkedWatched] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  // Time tracking refs
+  const initialCurrentTimeRef = useRef<number>(0); // Time previously watched
+  const sessionWatchedRef = useRef<number>(0); // Time watched in this specific session
+  const saveIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const trackingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
   const durationSeconds = duration * 60;
 
   // Keyboard shortcuts
   const shortcuts = [
-    { key: "Space", action: "Play / Pause" },
     { key: "F", action: "Toggle Fullscreen" },
-    { key: "M", action: "Mute / Unmute" },
-    { key: "←", action: "Seek -10s" },
-    { key: "→", action: "Seek +10s" },
-    { key: "↑", action: "Volume Up" },
-    { key: "↓", action: "Volume Down" },
     { key: "Esc", action: "Close Player" },
   ];
 
-  // Load existing progress when modal opens
+  // Initialize and load progress
   useEffect(() => {
     if (isOpen) {
-      const existingProgress = getMediaProgress(mediaType, mediaId, season, episode);
-      if (existingProgress) {
-        initialProgressRef.current = existingProgress.currentTime;
+      const existing = getMediaProgress(mediaType, mediaId, season, episode);
+      if (existing) {
+        initialCurrentTimeRef.current = existing.currentTime || 0;
+        if (existing.progress >= 95) setIsMarkedWatched(true);
       } else {
-        initialProgressRef.current = 0;
+        initialCurrentTimeRef.current = 0;
+        setIsMarkedWatched(false);
       }
-      startTimeRef.current = Date.now();
+      sessionWatchedRef.current = 0;
+      setIsLoading(true);
     }
+    // Cleanup intervals on close/unmount
+    return () => {
+      if (saveIntervalRef.current) clearInterval(saveIntervalRef.current);
+      if (trackingIntervalRef.current) clearInterval(trackingIntervalRef.current);
+    };
   }, [isOpen, mediaType, mediaId, season, episode]);
 
-  const handleClose = useCallback(() => {
-    if (startTimeRef.current > 0) {
-      const watchedSeconds = Math.floor((Date.now() - startTimeRef.current) / 1000);
-      const totalWatched = initialProgressRef.current + watchedSeconds;
-      const progress = Math.min((totalWatched / durationSeconds) * 100, 100);
 
-      if (watchedSeconds > 10) {
-        const progressData = {
-          id: mediaId,
-          mediaType,
-          title,
-          posterPath,
-          progress,
-          currentTime: Math.min(totalWatched, durationSeconds),
-          duration: durationSeconds,
-          season: mediaType === "tv" ? season : undefined,
-          episode: mediaType === "tv" ? episode : undefined,
-        };
-
-        // Save to local storage
-        saveWatchProgress(progressData);
-
-        // Also save to cloud if authenticated
-        if (isAuthenticated) {
-          saveProgress(progressData);
-        }
-
-        if (onProgressUpdate) {
-          onProgressUpdate();
-        }
-      }
+  // SAVE LOGIC
+  const saveCurrentProgress = useCallback((forceProgress?: number) => {
+    // If explicitly marking as watched, force 100%
+    if (forceProgress === 100) {
+      const data = {
+        id: mediaId,
+        mediaType,
+        title,
+        posterPath,
+        progress: 100,
+        currentTime: durationSeconds,
+        duration: durationSeconds,
+        season: mediaType === "tv" ? season : undefined,
+        episode: mediaType === "tv" ? episode : undefined,
+      };
+      saveWatchProgress(data);
+      if (isAuthenticated) saveProgress(data);
+      if (onProgressUpdate) onProgressUpdate();
+      return;
     }
 
+    // Otherwise calculate estimated time
+    const totalSeconds = initialCurrentTimeRef.current + sessionWatchedRef.current;
+
+    // Cap at duration
+    const clampedSeconds = Math.min(totalSeconds, durationSeconds);
+    const progressPercent = (clampedSeconds / durationSeconds) * 100;
+
+    // Don't save if very little progress (e.g. < 10 seconds total) unless it's a resume
+    if (clampedSeconds < 10 && initialCurrentTimeRef.current === 0) return;
+
+    const data = {
+      id: mediaId,
+      mediaType,
+      title,
+      posterPath,
+      progress: Math.min(progressPercent, 100),
+      currentTime: clampedSeconds,
+      duration: durationSeconds,
+      season: mediaType === "tv" ? season : undefined,
+      episode: mediaType === "tv" ? episode : undefined,
+    };
+
+    saveWatchProgress(data);
+    if (isAuthenticated) {
+      saveProgress(data);
+    }
+    if (onProgressUpdate) {
+      onProgressUpdate();
+    }
+  }, [mediaId, mediaType, title, posterPath, durationSeconds, season, episode, isAuthenticated, saveProgress, onProgressUpdate]);
+
+
+  // MARK AS WATCHED
+  const handleMarkWatched = () => {
+    setIsMarkedWatched(true);
+    saveCurrentProgress(100);
+  };
+
+  // ACTIVE TIME TRACKER
+  // Only counts time when document is visible (tab is active)
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // 1. Second counter (only when visible)
+    trackingIntervalRef.current = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        sessionWatchedRef.current += 1;
+      }
+    }, 1000);
+
+    // 2. Periodic Auto-save every 15 seconds
+    saveIntervalRef.current = setInterval(() => {
+      if (document.visibilityState === "visible" && !isMarkedWatched) {
+        saveCurrentProgress();
+      }
+    }, 15000);
+
+    return () => {
+      if (trackingIntervalRef.current) clearInterval(trackingIntervalRef.current);
+      if (saveIntervalRef.current) clearInterval(saveIntervalRef.current);
+    };
+  }, [isOpen, saveCurrentProgress, isMarkedWatched]);
+
+  // Handle Close (Final Save)
+  const handleClose = () => {
+    if (!isMarkedWatched) {
+      saveCurrentProgress();
+    }
     onClose();
-  }, [onClose, mediaType, mediaId, title, posterPath, season, episode, durationSeconds, onProgressUpdate]);
+  };
 
   // Toggle fullscreen
   const toggleFullscreen = useCallback(() => {
@@ -112,87 +177,28 @@ export default function PlayerModal({
     }
   }, []);
 
+  // Prevent background scroll
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-
-    return () => {
-      document.body.style.overflow = "unset";
-    };
+    if (isOpen) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "unset";
+    return () => { document.body.style.overflow = "unset"; };
   }, [isOpen]);
 
-  // Keyboard shortcuts handler
+  // Keyboard Shortcuts
   useEffect(() => {
     if (!isOpen) return;
-
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore if user is typing in an input
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
-        return;
-      }
-
+      if (e.target instanceof HTMLInputElement) return;
       switch (e.key) {
-        case "Escape":
-          handleClose();
-          break;
-        case " ":
-          e.preventDefault();
-          // Try to toggle play/pause in iframe (may not work due to cross-origin)
-          // The embedded player usually handles Space itself
-          break;
+        case "Escape": handleClose(); break;
         case "f":
-        case "F":
-          e.preventDefault();
-          toggleFullscreen();
-          break;
-        case "?":
-          setShowShortcuts((prev) => !prev);
-          break;
-        default:
-          break;
+        case "F": toggleFullscreen(); break;
+        case "?": setShowShortcuts((prev) => !prev); break;
       }
     };
-
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, handleClose, toggleFullscreen]);
-
-  // Reset loading state when modal opens or media changes
-  useEffect(() => {
-    if (isOpen) {
-      setIsLoading(true);
-    }
-  }, [isOpen, mediaId, season, episode]);
-
-  // Periodically save progress while watching
-  useEffect(() => {
-    if (!isOpen || isLoading) return;
-
-    const interval = setInterval(() => {
-      const watchedSeconds = Math.floor((Date.now() - startTimeRef.current) / 1000);
-      const totalWatched = initialProgressRef.current + watchedSeconds;
-      const progress = Math.min((totalWatched / durationSeconds) * 100, 100);
-
-      if (watchedSeconds > 30) {
-        saveWatchProgress({
-          id: mediaId,
-          mediaType,
-          title,
-          posterPath,
-          progress,
-          currentTime: Math.min(totalWatched, durationSeconds),
-          duration: durationSeconds,
-          season: mediaType === "tv" ? season : undefined,
-          episode: mediaType === "tv" ? episode : undefined,
-        });
-      }
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, [isOpen, isLoading, mediaType, mediaId, title, posterPath, season, episode, durationSeconds]);
+  }, [isOpen, toggleFullscreen]); // Removed handleClose from deps to avoid stale closure if any
 
   if (!isOpen) return null;
 
@@ -201,10 +207,7 @@ export default function PlayerModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/90 backdrop-blur-sm"
-        onClick={handleClose}
-      />
+      <div className="absolute inset-0 bg-black/90 backdrop-blur-sm" onClick={handleClose} />
 
       {/* Modal Container */}
       <div id="player-container" className="relative w-full max-w-[1280px] mx-2 sm:mx-4 animate-fade-in">
@@ -219,7 +222,23 @@ export default function PlayerModal({
             )}
           </div>
           <div className="flex items-center gap-2">
-            {/* Shortcuts Help Button */}
+            {/* Mark as Watched Button */}
+            <button
+              onClick={handleMarkWatched}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${isMarkedWatched
+                  ? "bg-green-600/20 text-green-500 border border-green-600/50 cursor-default"
+                  : "bg-white/10 hover:bg-white/20 text-white"
+                }`}
+              title="Mark as Watched"
+              disabled={isMarkedWatched}
+            >
+              <CheckCircleIcon className="w-5 h-5" />
+              <span className="hidden sm:inline text-sm font-medium">
+                {isMarkedWatched ? "Watched" : "Mark Watched"}
+              </span>
+            </button>
+
+            {/* Shortcuts Help */}
             <button
               onClick={() => setShowShortcuts((prev) => !prev)}
               className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
@@ -227,6 +246,8 @@ export default function PlayerModal({
             >
               <QuestionMarkCircleIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </button>
+
+            {/* Close */}
             <button
               onClick={handleClose}
               className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
@@ -246,6 +267,7 @@ export default function PlayerModal({
               </div>
             </div>
           )}
+
           <iframe
             ref={iframeRef}
             src={embedUrl}
@@ -254,7 +276,7 @@ export default function PlayerModal({
             onLoad={() => setIsLoading(false)}
           />
 
-          {/* Keyboard Shortcuts Overlay */}
+          {/* Shortcuts Overlay */}
           {showShortcuts && (
             <div
               className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-10"
@@ -264,9 +286,7 @@ export default function PlayerModal({
                 className="bg-[#232323] rounded-xl p-6 max-w-sm w-full mx-4 border border-white/10"
                 onClick={(e) => e.stopPropagation()}
               >
-                <h3 className="text-lg font-semibold text-white mb-4 text-center">
-                  Keyboard Shortcuts
-                </h3>
+                <h3 className="text-lg font-semibold text-white mb-4 text-center">shortcuts</h3>
                 <div className="space-y-3">
                   {shortcuts.map((shortcut) => (
                     <div key={shortcut.key} className="flex items-center justify-between">
@@ -277,22 +297,16 @@ export default function PlayerModal({
                     </div>
                   ))}
                 </div>
-                <p className="text-gray-500 text-xs mt-4 text-center">
-                  Press ? to toggle this menu
-                </p>
+                <p className="text-gray-500 text-xs mt-4 text-center">Press ? to toggle</p>
               </div>
             </div>
           )}
         </div>
 
-        {/* Info */}
+        {/* Info Footer */}
         <div className="mt-2 sm:mt-4 flex items-center justify-between text-xs sm:text-sm text-gray-400">
-          <p>
-            Tip: If the video doesn&apos;t load, try refreshing or changing the server.
-          </p>
-          <p className="hidden sm:block text-gray-500">
-            Press ? for shortcuts
-          </p>
+          <p>We automatically track your watch time while the tab is active.</p>
+          <p className="hidden sm:block text-gray-500">Press ? for shortcuts</p>
         </div>
       </div>
     </div>

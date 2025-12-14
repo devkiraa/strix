@@ -39,11 +39,15 @@ export interface WatchProgressItem {
 // Fetch all data from the JSON API
 async function fetchData(): Promise<UserData> {
     try {
-        const response = await fetch(`${API_BASE}/public/${DOCUMENT_ID}`);
+        const response = await fetch(`${API_BASE}/public/${DOCUMENT_ID}`, {
+            cache: 'no-store', // Disable caching to always get fresh data
+        });
         if (!response.ok) {
             throw new Error("Failed to fetch data");
         }
-        const data = await response.json();
+        const responseData = await response.json();
+        // Handle both direct data and nested data.data structure
+        const data = responseData.data || responseData;
         return data.users ? data : { users: {} };
     } catch (error) {
         console.error("Error fetching data:", error);
@@ -201,12 +205,12 @@ export async function removeUserWatchProgress(
     return await updateData(data);
 }
 
-// Get continue watching items (5-95% progress)
+// Get continue watching items (any progress < 95%)
 export async function getContinueWatchingForUser(
     email: string
 ): Promise<WatchProgressItem[]> {
     const progress = await getUserWatchProgress(email);
     return progress
-        .filter((item) => item.progress > 5 && item.progress < 95)
+        .filter((item) => item.progress > 0 && item.progress < 95)
         .sort((a, b) => b.lastWatched - a.lastWatched);
 }
