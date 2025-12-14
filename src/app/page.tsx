@@ -15,9 +15,12 @@ import {
   Media,
 } from "@/lib/tmdb";
 import { getContinueWatching, WatchProgress } from "@/lib/watchProgress";
+import { useAuth } from "@/context/AuthContext";
 
 export default function HomePage() {
   const router = useRouter();
+  const { isAuthenticated, watchProgress, refreshWatchProgress } = useAuth();
+
   const [trendingAll, setTrendingAll] = useState<Media[]>([]);
   const [popularMovies, setPopularMovies] = useState<Media[]>([]);
   const [topRatedMovies, setTopRatedMovies] = useState<Media[]>([]);
@@ -25,8 +28,8 @@ export default function HomePage() {
   const [topRatedTV, setTopRatedTV] = useState<Media[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Continue watching state
-  const [continueWatching, setContinueWatching] = useState<WatchProgress[]>([]);
+  // Continue watching state (local fallback for non-authenticated users)
+  const [localContinueWatching, setLocalContinueWatching] = useState<WatchProgress[]>([]);
 
   // Player state
   const [playerOpen, setPlayerOpen] = useState(false);
@@ -39,14 +42,29 @@ export default function HomePage() {
     episode?: number;
   } | null>(null);
 
-  // Load continue watching data
-  const refreshContinueWatching = useCallback(() => {
-    setContinueWatching(getContinueWatching());
-  }, []);
+  // Get continue watching items based on auth state
+  const continueWatching = isAuthenticated
+    ? watchProgress.map(item => ({
+      ...item,
+      lastWatched: item.lastWatched,
+    }))
+    : localContinueWatching;
 
+  // Refresh continue watching (handles both auth and local)
+  const handleRefreshContinueWatching = useCallback(() => {
+    if (isAuthenticated) {
+      refreshWatchProgress();
+    } else {
+      setLocalContinueWatching(getContinueWatching());
+    }
+  }, [isAuthenticated, refreshWatchProgress]);
+
+  // Load local continue watching on mount
   useEffect(() => {
-    refreshContinueWatching();
-  }, [refreshContinueWatching]);
+    if (!isAuthenticated) {
+      setLocalContinueWatching(getContinueWatching());
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -108,7 +126,7 @@ export default function HomePage() {
   const handlePlayerClose = () => {
     setPlayerOpen(false);
     // Refresh continue watching after closing player
-    refreshContinueWatching();
+    handleRefreshContinueWatching();
   };
 
   if (loading) {
@@ -165,7 +183,7 @@ export default function HomePage() {
         <ContinueWatching
           items={continueWatching}
           onPlay={handleContinueWatchingPlay}
-          onRefresh={refreshContinueWatching}
+          onRefresh={handleRefreshContinueWatching}
         />
 
         <MediaSlider
@@ -214,7 +232,7 @@ export default function HomePage() {
           posterPath={currentMedia.posterPath}
           season={currentMedia.season}
           episode={currentMedia.episode}
-          onProgressUpdate={refreshContinueWatching}
+          onProgressUpdate={handleRefreshContinueWatching}
         />
       )}
     </>

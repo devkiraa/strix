@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { XMarkIcon, QuestionMarkCircleIcon } from "@heroicons/react/24/solid";
 import { getVidsrcUrl } from "@/lib/tmdb";
 import { saveWatchProgress, getMediaProgress } from "@/lib/watchProgress";
+import { useAuth } from "@/context/AuthContext";
 
 interface PlayerModalProps {
   isOpen: boolean;
@@ -30,6 +31,7 @@ export default function PlayerModal({
   duration = mediaType === "movie" ? 120 : 45,
   onProgressUpdate,
 }: PlayerModalProps) {
+  const { isAuthenticated, saveProgress } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const startTimeRef = useRef<number>(0);
@@ -69,7 +71,7 @@ export default function PlayerModal({
       const progress = Math.min((totalWatched / durationSeconds) * 100, 100);
 
       if (watchedSeconds > 10) {
-        saveWatchProgress({
+        const progressData = {
           id: mediaId,
           mediaType,
           title,
@@ -79,7 +81,15 @@ export default function PlayerModal({
           duration: durationSeconds,
           season: mediaType === "tv" ? season : undefined,
           episode: mediaType === "tv" ? episode : undefined,
-        });
+        };
+
+        // Save to local storage
+        saveWatchProgress(progressData);
+
+        // Also save to cloud if authenticated
+        if (isAuthenticated) {
+          saveProgress(progressData);
+        }
 
         if (onProgressUpdate) {
           onProgressUpdate();
@@ -240,8 +250,7 @@ export default function PlayerModal({
             ref={iframeRef}
             src={embedUrl}
             className="w-full h-full"
-            allowFullScreen
-            allow="autoplay; fullscreen; picture-in-picture"
+            allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
             onLoad={() => setIsLoading(false)}
           />
 
